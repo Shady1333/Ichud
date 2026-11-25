@@ -9,6 +9,9 @@ Static site, no build step. `index.html` loads the course data files, then `ichu
 - **`ichud.js`** adds these pages: slides, explainers, games, tools, cheatsheet, hebrew (merged), notes (Note Lab with CFB focus mode), docs, fixes and help. Each page is a persistent `<section class="ip">` kept in `#ichud-holder`. `app.js` calls `ICHUD_BEFORE`/`ICHUD_AFTER`, which move the section into `#app` when its page is routed. `ICHUD_PAGES` registers the routes. `ICHUD_HOME` adds cards to the overview. `searchItems` is wrapped to index our content too.
 - **`ichud.css`** styles our modules in the academy's navy (#05203f) and orange (#f36a22) palette with DM Sans and Outfit. Scope new rules under `.ip`.
 
+- **Back button:** `goBack` is overridden in `ichud.js` by `backTarget()`, which steps out of the current context (game → games menu, sim → sims, quiz/case → list, chapter → chapters, page → Overview). When you add an in-page mode (a game, a sub-view), add a case there and call `updateBack()` when the mode changes.
+- **Video player:** clicks on YouTube links are captured and open `#vplayer`. It embeds youtube-nocookie on normal hosts. The Claude artifact blocks third-party iframes, so it falls back to a YouTube link there (`inClaude`).
+
 ## Rules when editing
 
 - **Keep the tour and Help page current.** Both are generated from `TOUR`, `SHORTCUTS` and `PAGE_NAMES` in `ichud.js`. Whenever a page, feature, button or shortcut is added, renamed or removed, update `TOUR` in the same change. Each entry is `{v: page hash, sel: CSS selector to highlight, h: title, p: one-line how-to, help?: extra detail}`.
