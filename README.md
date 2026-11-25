@@ -20,6 +20,7 @@ An interactive study site for EMT coursework, built from my own notes plus the A
 | Note Lab | Type or dictate notes; Claude cleans them up, fact-checks them and adds study items |
 | My notes | Original notes, word for word, searchable |
 | Note check | Corrections and additions to the original notes |
+| Tour & Help | Guided first-visit tour (replay with ?) and a full Help page with shortcuts |
 
 ## Running it
 

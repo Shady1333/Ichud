@@ -139,6 +139,10 @@ th{font-weight:700;background:var(--soft)}td.n{text-align:right;white-space:nowr
 #fRaw{flex:1;width:100%;max-width:760px;margin:18px auto 0;border:0;outline:0;resize:none;background:transparent;color:var(--ink);font:19px/1.75 Barlow,sans-serif;padding:0 2px}
 #fRaw::placeholder{color:var(--mute);opacity:.6}
 #fPartial{max-width:760px;width:100%;margin:0 auto;min-height:1.4em;font-style:italic}
+#tour{position:fixed;inset:0;z-index:300}#tour[hidden]{display:none}
+#tour.dim{background:rgba(5,10,20,.55)}
+#tourSpot{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(5,10,20,.55);outline:3px solid var(--red);transition:all .3s;pointer-events:none}
+.tour-card{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(520px,calc(100vw - 24px));background:var(--card);color:var(--ink);border-radius:18px;padding:18px 20px;box-shadow:0 20px 50px -10px rgba(0,0,0,.5);border:1px solid var(--line)}
 footer{text-align:center;color:var(--mute);font-size:14px;padding:20px}
 @media(max-width:800px){.hero,.slide,.sim{grid-template-columns:minmax(0,1fr)}.slide{min-height:0}}
 @media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;font-weight:700}.stack td:empty{display:none}.mon-screen{grid-template-columns:minmax(0,1fr)}.vit{grid-template-columns:repeat(4,minmax(0,1fr))}.vit b{font-size:26px}}
@@ -160,10 +164,19 @@ footer{text-align:center;color:var(--mute);font-size:14px;padding:20px}
   <textarea id="fRaw" aria-label="Your notes" placeholder="Start typing your notes…" spellcheck="true"></textarea>
   <p id="fPartial" class="f-meta" aria-live="polite"></p>
 </div>
+<div id="tour" role="dialog" aria-modal="true" aria-labelledby="tourH" aria-describedby="tourP" hidden>
+  <div id="tourSpot" aria-hidden="true"></div>
+  <div class="tour-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="mute" id="tourStep" style="font-size:14px"></span><button class="chip" id="tourSkip" style="min-height:36px;padding:4px 12px">Skip tour</button></div>
+    <h3 id="tourH" style="margin:10px 0 6px"></h3>
+    <p id="tourP" aria-live="polite" style="margin:0 0 14px"></p>
+    <div style="display:flex;align-items:center;gap:10px"><button class="btn alt" id="tourBack">Back</button><div class="dots" id="tourDots" style="justify-content:center"></div><button class="btn" id="tourNext">Next</button></div>
+  </div>
+</div>
 <header>
   <div class="brand">
     <div><h1>EMT Study Center</h1><small>Patient assessment, asthma, airway &amp; shock: built from your notes plus the AAOS curriculum</small></div>
-    <div class="xp" id="xp">0 XP</div>
+    <div style="display:flex;gap:8px;align-items:center"><div class="xp" id="xp">0 XP</div><button id="tourBtn" aria-label="Tour and help" title="Tour and help" style="width:44px;border:0;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font:700 20px Barlow">?</button></div>
   </div>
   <nav id="nav"></nav>
 </header>
@@ -452,6 +465,12 @@ footer{text-align:center;color:var(--mute);font-size:14px;padding:20px}
   <p class="mute" id="nCount" aria-live="polite"></p>
 </section>
 
+<section class="view" id="v-help">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2>How to use the study center</h2><button class="btn red" id="helpTour">Start the tour</button></div>
+  <p class="mute">Every feature, what it does and where to find it.</p>
+  <div id="helpBody"></div>
+</section>
+
 <section class="view" id="v-fixes">
   <h2>Note check</h2>
   <p>I checked your docs against the AAOS 13th edition curriculum. Most of it is solid. These are the spots worth fixing or adding before your exam.</p>
@@ -714,7 +733,7 @@ const CHEAT=[
 ['Shock care',['Stop external bleeding first','Supine, keep warm, nothing by mouth','O₂ to SpO₂ ≥ 94%','Rapid transport, ALS, reassess q5 min','Falling BP = late sign']]];
 
 /* ---------- routing ---------- */
-const VIEWS=[['home','Home'],['slides','Slides'],['animations','Animations'],['flashcards','Flashcards'],['quiz','Quiz'],['games','Games'],['tools','Field tools'],['videos','Videos'],['cheatsheet','Cheat sheet'],['hebrew','Hebrew terms'],['lab','Note Lab'],['notes','My notes'],['fixes','Note check']];
+const VIEWS=[['home','Home'],['slides','Slides'],['animations','Animations'],['flashcards','Flashcards'],['quiz','Quiz'],['games','Games'],['tools','Field tools'],['videos','Videos'],['cheatsheet','Cheat sheet'],['hebrew','Hebrew terms'],['lab','Note Lab'],['notes','My notes'],['fixes','Note check'],['help','Help']];
 $('nav').innerHTML=VIEWS.map(([k,l])=>`<a href="#${k}" data-v="${k}">${l}</a>`).join('');
 const visited=new Set(S.get('visited',[]));
 function route(){
@@ -1205,6 +1224,53 @@ $('nSearch').addEventListener('input',e=>{const q=e.target.value.trim();nb.inner
   const walk=node=>{for(const c of [...node.childNodes]){if(c.nodeType===3){if(re.test(c.nodeValue)){re.lastIndex=0;const span=document.createElement('span');span.innerHTML=c.nodeValue.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(re,m=>{n++;return '<mark>'+m+'</mark>'});c.replaceWith(span)}re.lastIndex=0}else walk(c)}};
   walk(nb);$('nCount').textContent=n?`${n} match${n>1?'es':''}`:'No matches';const f=nb.querySelector('mark');if(f)f.scrollIntoView({block:'center'})});
 $('copyNotes').onclick=async()=>{try{await navigator.clipboard.writeText(nb.innerText);$('copyNotes').textContent='Copied'}catch(e){$('copyNotes').textContent='Copy blocked'}setTimeout(()=>$('copyNotes').textContent='Copy notes',2000)};
+
+/* ---------- Tour + Help (single source: update TOUR when features change) ---------- */
+const TOUR=[
+{v:'home',sel:null,h:'Welcome to your EMT Study Center',p:'A quick tour of every feature. It takes about a minute. Use the arrow keys or the buttons; Esc skips.',help:'Everything here is built from your notes plus the AAOS 13th edition curriculum.'},
+{v:'home',sel:'#xp',h:'XP and rank',p:'You earn XP for slides, cards, quizzes, games and videos. Your rank climbs from Probie to Crew Chief. Progress saves in this browser.'},
+{v:'home',sel:'#nav',h:'Tabs',p:'Every section lives in this row. On a phone, swipe it sideways.'},
+{v:'home',sel:'#tiles',h:'Progress at a glance',p:'Each tile shows how far along you are and jumps to that section.'},
+{v:'slides',sel:'#slideFilter',h:'Slides',p:'Filter by topic, then swipe or use the ← → keys. Look for pearls and the "▶ Watch" links to matching videos.',help:'Topics: Assessment, Asthma, Airway, Shock, Hebrew, plus any topic Note Lab creates.'},
+{v:'animations',sel:'#v-animations .card',h:'Animations',p:'Drag the severity slider to watch an asthma attack, break the perfusion triangle, step through OPA insertion, and run the CPR metronome.'},
+{v:'flashcards',sel:'#fc',h:'Flashcards',p:'Tap or press Space to flip. → means "Got it", ← means "Study again". Mastered cards are remembered.'},
+{v:'quiz',sel:'#quiz .card',h:'Quiz',p:'Pick a topic and length. Every answer comes with the reason, and you can retry just your misses.'},
+{v:'games',sel:'#gameTabs',h:'Games',p:'Assessment Builder, Mnemonic Decoder, Shock Detective, Airway Builder, a 60-second Speed Round, and patient sims where a live monitor reacts to your calls.'},
+{v:'tools',sel:'#v-tools .card',h:'Field tools',p:'Oxygen cylinder duration calculator, delivery devices, adjunct sizing and normal vitals by age.'},
+{v:'videos',sel:'#eps',h:'Video bank',p:'Ari Deutsch\'s EMT Review episodes, filterable by topic. Opened episodes get checked off.'},
+{v:'cheatsheet',sel:'#cheat',h:'Cheat sheet',p:'Everything on one page. "Copy as text" puts it on your clipboard.'},
+{v:'hebrew',sel:'#heModes',h:'Hebrew terms',p:'The United Hatzalah sheet: searchable glossary, on-scene SAMPLE and OPQRST questions, flashcards, a match game and 🔊 audio where your device supports it.'},
+{v:'lab',sel:'#fGo',h:'Note Lab: CFB',p:'Note Lab opens as a distraction-free page. Write or dictate, then press CFB (or Ctrl/⌘ + Enter) to Clean up, Fact-check and Build. You review before anything is added.',help:'Each added note becomes a slide, flashcards, quiz and speed-round questions. Notes sync to your Claude account. Esc leaves focus mode; drafts autosave.'},
+{v:'notes',sel:'#nSearch',h:'My notes',p:'Your original docs, word for word. Search highlights matches, and A− / A+ change the text size.'},
+{v:'fixes',sel:'#fixes',h:'Note check',p:'Corrections and missing points found in your docs. Fix these before the exam.'},
+{v:'help',sel:'#tourBtn',h:'That\'s it',p:'Press ? anytime to replay this tour or read the full Help page.'}];
+const SHORTCUTS=[['← →','Previous / next slide'],['Space','Flip flashcard'],['→ / ←','Flashcard: got it / study again'],['Ctrl/⌘ + Enter','CFB in Note Lab focus mode'],['Esc','Leave focus mode or close the tour']];
+const VNAME=Object.fromEntries(VIEWS);
+$('helpBody').innerHTML=`<div class="grid">${TOUR.filter(t=>t.v!=='help'&&t.sel).map(t=>`<div class="card"><span class="tag">${esc(VNAME[t.v]||'')}</span><h3 style="margin-top:8px">${esc(t.h)}</h3><p style="margin:0">${esc(t.p)}</p>${t.help?`<p class="mute" style="margin:8px 0 0;font-size:15px">${esc(t.help)}</p>`:''}${t.v!=='home'?`<a href="#${t.v}" style="display:inline-block;margin-top:8px;color:var(--blue);font-weight:700">Go to ${esc(VNAME[t.v])} →</a>`:''}</div>`).join('')}</div>
+<h3 style="margin-top:24px">Keyboard shortcuts</h3><div class="card" style="padding:0"><table><tbody>${SHORTCUTS.map(([k,d])=>`<tr><td style="width:40%"><kbd style="font:600 14px Barlow;background:var(--soft);padding:3px 8px;border-radius:6px">${k}</kbd></td><td>${d}</td></tr>`).join('')}</tbody></table></div>`;
+let tourI=-1,tourPrevFocus=null;
+const tEl=$('tour'),spot=$('tourSpot');
+function placeSpot(){const t=TOUR[tourI];const el=t&&t.sel?document.querySelector(t.sel):null;
+  if(!el||!el.getClientRects().length){spot.style.display='none';tEl.classList.add('dim');return}
+  tEl.classList.remove('dim');const r=el.getBoundingClientRect(),pad=6;spot.style.display='block';
+  Object.assign(spot.style,{left:(r.left-pad)+'px',top:(r.top-pad)+'px',width:(r.width+pad*2)+'px',height:Math.min(r.height+pad*2,innerHeight*.6)+'px'})}
+function tourShow(i){tourI=i;const t=TOUR[i];
+  if(t.v==='help'){if(focusOpen)closeFocus();location.hash='help'}else if(('#'+t.v)!==location.hash)location.hash=t.v;
+  setTimeout(()=>{const el=t.sel&&document.querySelector(t.sel);if(el&&!el.closest('#focus'))el.scrollIntoView({block:'center',behavior:'auto'});
+    $('tourStep').textContent=`Step ${i+1} of ${TOUR.length}`;$('tourH').textContent=t.h;$('tourP').textContent=t.p;
+    $('tourBack').disabled=i===0;$('tourNext').textContent=i===TOUR.length-1?'Finish':'Next';
+    $('tourDots').innerHTML=TOUR.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('');placeSpot();$('tourNext').focus()},120)}
+function tourStart(){tourPrevFocus=document.activeElement;tEl.hidden=false;tourShow(0)}
+function tourEnd(){tEl.hidden=true;tourI=-1;S.set('toured',1);if(focusOpen)closeFocus();if(location.hash==='#lab')location.hash='home';addXP(10);(tourPrevFocus&&tourPrevFocus.focus)?tourPrevFocus.focus():0}
+$('tourNext').onclick=()=>tourI<TOUR.length-1?tourShow(tourI+1):tourEnd();
+$('tourBack').onclick=()=>tourI>0&&tourShow(tourI-1);
+$('tourSkip').onclick=tourEnd;
+$('tourBtn').onclick=tourStart;$('helpTour').onclick=tourStart;
+addEventListener('keydown',e=>{if(tEl.hidden)return;e.stopImmediatePropagation();
+  if(e.key==='Escape'){e.preventDefault();tourEnd()}else if(e.key==='ArrowRight'){e.preventDefault();$('tourNext').click()}else if(e.key==='ArrowLeft'){e.preventDefault();$('tourBack').click()}
+  else if(e.key==='Tab'){const f=[...tEl.querySelectorAll('button:not(:disabled)')];const a=f.indexOf(document.activeElement);e.preventDefault();f[(a+(e.shiftKey?-1:1)+f.length)%f.length].focus()}},true);
+addEventListener('resize',()=>{if(!tEl.hidden)placeSpot()});addEventListener('scroll',()=>{if(!tEl.hidden)placeSpot()},true);
+if(!S.get('toured',0))setTimeout(tourStart,700);
 
 route();
 }
