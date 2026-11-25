@@ -14,7 +14,7 @@ Static site, no build step. `index.html` loads the course data files, then `ichu
 - **Keep the tour and Help page current.** Both are generated from `TOUR`, `SHORTCUTS` and `PAGE_NAMES` in `ichud.js`. Whenever a page, feature, button or shortcut is added, renamed or removed, update `TOUR` in the same change. Each entry is `{v: page hash, sel: CSS selector to highlight, h: title, p: one-line how-to, help?: extra detail}`.
 - New nav items go in the sidebar in `index.html` (`data-page` must match the route). Ichud pages also need a `MOUNT` entry in `ichud.js`.
 - Avoid the core's delegated attributes inside Ichud markup: `data-action`, `data-filter`, `data-option`, `data-term`, `data-section`, `#flip-card`.
-- Tag new questions and cards with a chapter number so they feed grades and adaptive practice.
+- Tag new questions and cards with a chapter number so they feed grades, adaptive practice and the Mastery tracker. New games should call `recordGame(key, pct)` and map `key` to a chapter in `GAME_CH`.
 - "My docs" shows the user's docs exactly as written, typos included. Corrections go in `FIXES` (Note check), never in the docs.
 - Escape anything from Claude, the database or the user with `esc()` before it goes into HTML.
 - Keep the hosted Claude artifact and this repo in sync: publish the same files to both.

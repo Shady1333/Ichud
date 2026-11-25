@@ -10,6 +10,7 @@ The Ichud Hatzalah EMT study space. It combines **Ari EMT Academy** (chapter les
 | Slides | Visual decks by chapter, linked to Ari Deutsch's review episodes |
 | Flashcards and Practice quiz | One shared deck and question bank, with adaptive tests that raise the level at 80% and prioritize missed topics |
 | Grades & weak areas | Cumulative and per-chapter grades and a weak-area queue |
+| Mastery tracker | A running status for every chapter (Down pat, Getting there, Needs review) from quizzes, cards, games, sims and lessons. Shows topic breakdowns and what to work on next, and lets you set a status yourself |
 | Clinical decisions | 28 patient calls with feedback on each decision |
 | Games & live sims | Assessment and Airway Builders, Mnemonic Decoder, Shock Detective, Speed Round, sims with a reacting monitor |
 | Animated explainers | Asthma airway, perfusion triangle, OPA insertion, CPR metronome |
