@@ -1,42 +1,35 @@
-# EMT Study Center
+# Ichud EMT Academy
 
-An interactive study site for EMT coursework, built from my own notes plus the AAOS *Emergency Care and Transportation of the Sick and Injured* (13th ed.) curriculum.
+The Ichud Hatzalah EMT study space. It combines **Ari EMT Academy** (chapter lessons, adaptive practice, grades, clinical decisions, video library) with the **EMT Study Center** (games, live sims, explainers, Hebrew sheet, Note Lab with AI cleanup, tour).
 
-**Topics:** Patient Assessment (Medical), Asthma, Airway Management, Shock, and United Hatzalah Hebrew terms.
+## Features
 
-## What's inside
-
-| Section | What it does |
+| Area | What it does |
 | --- | --- |
-| Slides | Topic-filtered slide deck with clinical pearls |
-| Animations | Bronchiole narrowing, perfusion triangle, OPA insertion, CPR metronome |
-| Flashcards | Flip cards with "got it / study again" tracking |
-| Quiz | Multiple choice with explanations and a review of misses |
-| Games | Assessment Builder, Mnemonic Decoder, Shock Detective, Airway Builder, Speed Round, patient sims |
-| Field tools | O₂ cylinder duration calculator, device and sizing tables, normal vitals |
-| Video bank | Ari Deutsch's EMT Review episodes (watch tracking, linked from slides) plus skill-demo searches |
-| Cheat sheet | One-page summary, copyable as text |
-| Hebrew terms | 181-term glossary, on-scene SAMPLE/OPQRST questions, flashcards, match game, audio |
-| Note Lab | Type or dictate notes; Claude cleans them up, fact-checks them and adds study items |
-| My notes | Original notes, word for word, searchable |
-| Note check | Corrections and additions to the original notes |
-| Tour & Help | Guided first-visit tour (replay with ?) and a full Help page with shortcuts |
+| Chapters 2–16 | Lessons with course notes, worked calls, field checklists, red flags, diagrams and tap-to-define terms |
+| Slides | Visual decks by chapter, linked to Ari Deutsch's review episodes |
+| Flashcards and Practice quiz | One shared deck and question bank, with adaptive tests that raise the level at 80% and prioritize missed topics |
+| Grades & weak areas | Cumulative and per-chapter grades and a weak-area queue |
+| Clinical decisions | 28 patient calls with feedback on each decision |
+| Games & live sims | Assessment and Airway Builders, Mnemonic Decoder, Shock Detective, Speed Round, sims with a reacting monitor |
+| Animated explainers | Asthma airway, perfusion triangle, OPA insertion, CPR metronome |
+| Hebrew EMT terms | Course glossary with pronunciation, the United Hatzalah sheet, on-scene SAMPLE/OPQRST questions, flashcards, match game |
+| Video library | Ari Deutsch's EMT Review first, then skills demos from United Hatzalah, AHA and EMT programs |
+| Field tools and Cheat sheet | O₂ duration calculator, devices, sizing, normal vitals, one-page summary |
+| Note Lab | A Google-Doc-style page. **CFB** cleans up, fact-checks and builds study items filed to the right chapter |
+| My docs and Note check | Original notes word for word, plus the corrections found in them |
+| Search, Tour & Help | Search across everything, a first-visit guided tour (replay with ?) and a Help page |
 
 ## Running it
 
-It's a single self-contained file: open `index.html` in a browser.
+There is no build step. Serve the folder (for example with `python3 -m http.server`) or enable GitHub Pages (Settings → Pages → `main` / root). The YouTube player and fonts need a normal web host.
 
-The live version is hosted as a Claude artifact. **Note Lab** (AI cleanup, fact-check, account sync, dictation) only works there, because it uses Claude's page capabilities. Everything else works anywhere, and progress is saved in the browser.
-
-To host it yourself, enable GitHub Pages on this repo (Settings → Pages → deploy from the `main` branch).
+The live version is hosted as a Claude artifact. **Note Lab's** AI cleanup, account sync and dictation only work there. Everything else works anywhere, and progress is saved in the browser.
 
 ## Source notes
 
-`notes/` holds the original material:
-- `Patient Assessment - Medical.md`
-- `Asthma Airway Management and Shock.md`
-- `United Hatzalah Translated Terms.pdf` and a `united-hatzalah-terms.csv` export
+`notes/` holds the original Google Docs (Patient Assessment, and Asthma, Airway Management and Shock), the United Hatzalah translated terms PDF and a CSV export of it.
 
 ## Disclaimer
 
-Study aid only. Always follow local protocols (MDA / United Hatzalah), medical control and your instructor.
+This is a study aid. Follow your instructor, medical director and local protocols (MDA / United Hatzalah). The practice questions are original and are not official NREMT items.

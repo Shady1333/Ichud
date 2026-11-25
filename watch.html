@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Video player · Ichud EMT Academy</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0 auto; max-width: 64rem; padding: 1.25rem; background: #0a1e32; color: white; font: 1rem/1.5 system-ui, sans-serif; }
+    a { color: #ffb57e; }
+    h1 { font-size: clamp(1.3rem, 4vw, 2rem); }
+    .video-actions { display: flex; flex-wrap: wrap; align-items: start; gap: .65rem 1rem; margin-bottom: 1rem; }
+    .video-actions[hidden] { display: none; }
+    .watch-link { display: inline-block; padding: .55rem .85rem; border-radius: .4rem; background: #ffb57e; color: #0a1e32; font-weight: 700; text-decoration: none; }
+    summary { padding: .55rem 0; cursor: pointer; }
+    .video-url { display: block; width: min(24rem, calc(100vw - 2.5rem)); padding: .5rem; font: inherit; }
+    iframe { display: block; width: 100%; aspect-ratio: 16/9; min-height: 200px; border: 0; background: black; }
+  </style>
+</head>
+<body>
+  <main>
+    <a href="./#videos">Video library</a>
+    <h1 id="title">Video player</h1>
+    <div id="video-actions" class="video-actions" hidden>
+      <a id="publisher-link" class="watch-link" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
+      <details>
+        <summary>Copy video link</summary>
+        <input id="video-url" class="video-url" type="text" aria-label="YouTube video link" readonly>
+      </details>
+    </div>
+    <p id="hint" role="status"></p>
+    <div id="player"></div>
+  </main>
+  <script src="player.js?v=35"></script>
+  <script src="watch.js?v=35"></script>
+</body>
+</html>
