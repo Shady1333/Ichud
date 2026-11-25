@@ -226,8 +226,12 @@ footer{text-align:center;color:var(--mute);font-size:14px;padding:20px}
 </section>
 
 <section class="view" id="v-videos">
-  <h2>Watch it done</h2>
-  <p class="mute">Each link opens a YouTube search, so you can pick a recent, well-rated skill demo. Prefer channels from EMS educators or NREMT skill-sheet walkthroughs.</p>
+  <h2>Video bank</h2>
+  <div class="card" style="background:var(--blue);color:#fff;border:0;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap"><div><h3 style="margin:0">Ari Deutsch · EMT Review</h3><p style="margin:4px 0 0;opacity:.9">8 short review episodes, 3 to 6 minutes each. Watched ones are checked off.</p></div><a class="btn" href="https://www.youtube.com/@arideutsch8970/videos" target="_blank" rel="noopener" style="background:#fff;color:var(--blue);text-decoration:none;display:inline-grid;place-items:center">Open channel</a></div>
+  <div class="chips" id="epFilter"></div>
+  <div class="grid" id="eps"></div>
+  <h3 style="margin-top:32px">More skill demos</h3>
+  <p class="mute">Each link opens a YouTube search, so you can pick a recent, well-rated skill demo.</p>
   <div class="grid" id="vids"></div>
 </section>
 
@@ -730,11 +734,15 @@ const heroMon=monitor($('heroEcg'),$('heroVit'));
 /* ---------- home tiles ---------- */
 function renderTiles(){
   const known=S.get('known',[]).length,qbest=S.get('qbest',0),simDone=S.get('sims',0),slideSeen=S.get('slideSeen',[]).length;
-  const T=[['slides','Slides',`${SLIDES.length} slides across all three topics`,slideSeen/SLIDES.length],['flashcards','Flashcards',`${known} of ${CARDS.length} mastered`,known/CARDS.length],['quiz','Quiz',`${QUIZ.length} questions · best ${qbest}%`,qbest/100],['games','Games','Assessment & Airway Builders, Mnemonic Decoder, Shock Detective, Speed Round, 3 patient sims',Math.min(1,simDone/3)],['animations','Animations','Bronchiole, perfusion triangle, OPA, CPR metronome',visited.has('animations')?1:0],['tools','Field tools','O₂ duration calculator, sizing, normal vitals',visited.has('tools')?1:0],['videos','Videos','Curated skill-demo searches',visited.has('videos')?1:0],['fixes','Note check',`${FIXES.length} things to fix in your doc`,visited.has('fixes')?1:0]];
+  const T=[['slides','Slides',`${SLIDES.length} slides across all three topics`,slideSeen/SLIDES.length],['flashcards','Flashcards',`${known} of ${CARDS.length} mastered`,known/CARDS.length],['quiz','Quiz',`${QUIZ.length} questions · best ${qbest}%`,qbest/100],['games','Games','Assessment & Airway Builders, Mnemonic Decoder, Shock Detective, Speed Round, 3 patient sims',Math.min(1,simDone/3)],['animations','Animations','Bronchiole, perfusion triangle, OPA, CPR metronome',visited.has('animations')?1:0],['tools','Field tools','O₂ duration calculator, sizing, normal vitals',visited.has('tools')?1:0],['videos','Video bank',`Ari Deutsch EMT Review · ${S.get('epSeen',[]).length} of 8 watched`,S.get('epSeen',[]).length/8],['fixes','Note check',`${FIXES.length} things to fix in your doc`,visited.has('fixes')?1:0]];
   $('tiles').innerHTML=T.map(([k,h,p,f])=>`<a class="tile" href="#${k}"><h3>${h}</h3><p>${p}</p><div class="bar"><i style="width:${Math.round(f*100)}%"></i></div></a>`).join('');
 }
 
 /* ---------- slides ---------- */
+const SLIDEVID={'Scene size-up':[2,'LYTOS3qa-fA','Patient Assessment'],'Primary: impression & consciousness':[2,'LYTOS3qa-fA','Patient Assessment'],'Disability: glucose & stroke':[6,'4uy-JYFM_5Q','Stroke'],'Anaphylaxis':[4,'ILodHhw0ZXI','Anaphylaxis'],'Obstructive shock':[1,'28DIiiB0MWM','Pulmonary Embolism'],'Pump failure: cardiogenic':[5,'TpIMyn9z0NE','ACS'],'Vitals, reassessment & handoff':[2,'LYTOS3qa-fA','Patient Assessment']};
+SLIDES.forEach(x=>{if(SLIDEVID[x.h])x.ep=SLIDEVID[x.h]});
+SLIDES.push({t:'assess',h:'Diabetic emergencies',b:['Check glucose on every altered mental status patient. Normal 80–120 mg/dL.','<b>Hypoglycemia</b> (below ~60): fast onset, pale, cool, sweaty, confused or combative. Oral glucose if they can swallow and protect the airway.','<b>Hyperglycemia</b> (above ~400): slow onset over hours to days, warm dry skin, thirst, frequent urination, fruity breath, deep rapid breathing.','Unsure which? Glucose is the safer guess: it won\'t meaningfully harm a hyperglycemic patient and can save a hypoglycemic one. Follow protocol.'],art:'Low = fast · High = slow',p:'Ari Deutsch covers both in Episodes 7 and 8.',ep:[7,'2d1JQt078W8','Diabetes Part 1']});
+SLIDES.push({t:'airway',h:'Spontaneous pneumothorax',b:['Air leaks into the pleural space without trauma, often in tall, thin young men or patients with lung disease.','Sudden sharp chest pain and shortness of breath; diminished breath sounds on one side.','High-flow O₂, position of comfort, rapid transport, ALS. Watch for progression to a tension pneumothorax (obstructive shock).'],art:'Sudden pain + one quiet lung',p:'A tension pneumothorax is the shock emergency this can become.',ep:[3,'IvLPAHMdFVU','Spontaneous Pneumothorax']});
 let sFilter='all',sIdx=0,seen=new Set(S.get('slideSeen',[]));
 const artFor=s=>s.art==='bronch'?miniBronch():s.art==='opa'?'<svg viewBox="0 0 200 120" width="100%"><path d="M30 40v40" stroke="currentColor" stroke-width="10" stroke-linecap="round"/><path d="M30 60c60 0 110 10 130 50" fill="none" stroke="var(--red)" stroke-width="14" stroke-linecap="round"/><text x="100" y="30" text-anchor="middle" font-size="18" fill="currentColor">Flange on lips, curve over tongue</text></svg>':s.art==='tri'?miniTri():s.art==='cpr'?'<div style="font-size:64px;font-weight:800;color:var(--red)">6 s</div><div style="font-size:22px">1 breath · compressions never stop</div>':`<div style="font-size:clamp(24px,3vw,32px);font-weight:800;color:var(--blue)">${s.art}</div>`;
 function miniBronch(){return '<svg viewBox="0 0 240 120" width="100%"><g><circle cx="60" cy="60" r="44" fill="#f4b6bd"/><circle cx="60" cy="60" r="30" fill="var(--card)"/><text x="60" y="114" text-anchor="middle" font-size="14" fill="currentColor">Normal</text></g><g><circle cx="180" cy="60" r="44" fill="#e5707e"/><circle cx="180" cy="60" r="11" fill="var(--card)"/><circle cx="170" cy="52" r="5" fill="#e8d36a"/><circle cx="190" cy="66" r="4" fill="#e8d36a"/><text x="180" y="114" text-anchor="middle" font-size="14" fill="currentColor">Asthma attack</text></g></svg>'}
@@ -743,7 +751,7 @@ const sList=()=>SLIDES.filter(s=>sFilter==='all'||s.t===sFilter);
 function renderSlides(){
   $('slideFilter').innerHTML=['all',...Object.keys(TOPIC)].map(f=>`<button class="chip ${f===sFilter?'on':''}" data-f="${f}">${f==='all'?'All':esc(TOPIC[f])}</button>`).join('');
   const L=sList();
-  $('deck').innerHTML=L.map(s=>`<article class="slide"><div>${tag(s.t)}<h2 style="margin-top:10px">${s.h}</h2><ul>${s.b.map(x=>`<li>${x}</li>`).join('')}</ul>${s.p?`<div class="pearl"><b>Pearl:</b> ${s.p}</div>`:''}</div><div class="art">${artFor(s)}</div></article>`).join('');
+  $('deck').innerHTML=L.map(s=>`<article class="slide"><div>${tag(s.t)}<h2 style="margin-top:10px">${s.h}</h2><ul>${s.b.map(x=>`<li>${x}</li>`).join('')}</ul>${s.p?`<div class="pearl"><b>Pearl:</b> ${s.p}</div>`:''}${s.ep?`<a href="https://www.youtube.com/watch?v=${s.ep[1]}" target="_blank" rel="noopener" style="display:inline-block;margin-top:12px;color:var(--blue);font-weight:700">▶ Watch Ari Deutsch Ep ${s.ep[0]}: ${s.ep[2]}</a>`:''}</div><div class="art">${artFor(s)}</div></article>`).join('');
   $('sDots').innerHTML=L.map((_,i)=>`<i></i>`).join('');sIdx=0;updDeck();
 }
 function updDeck(){const L=sList();$('sCount').textContent=(sIdx+1)+' / '+L.length;[...$('sDots').children].forEach((d,i)=>d.classList.toggle('on',i===sIdx));$('sPrev').disabled=sIdx===0;$('sNext').disabled=sIdx===L.length-1;
@@ -942,6 +950,26 @@ runGame();
 function o2(){const c=+$('tank').value,p=+$('psi').value||0,l=+$('lpm').value;const m=Math.max(0,(p-200)*c/l);
   $('o2min').textContent=m.toFixed(1);$('o2how').textContent=`(${p} − 200) × ${c} ÷ ${l} = ${m.toFixed(1)} min. The 200 psi is the safe residual you never use.`}
 ['tank','psi','lpm'].forEach(id=>$(id).addEventListener('input',o2));o2();
+
+/* ---------- Ari Deutsch episode bank ---------- */
+const EPS=[
+[1,'Pulmonary Embolism','28DIiiB0MWM','3:09','shock','Obstructive shock: a clot in the pulmonary artery.'],
+[2,'Patient Assessment','LYTOS3qa-fA','4:48','assess','The assessment flow from scene size-up onward.'],
+[3,'Spontaneous Pneumothorax','IvLPAHMdFVU','3:40','airway','Collapsed lung without trauma: signs and care.'],
+[4,'Anaphylaxis','ILodHhw0ZXI','4:13','asthma','Severe allergic reaction and epinephrine.'],
+[5,'ACS: Acute Coronary Syndrome','TpIMyn9z0NE','4:47','shock','Chest pain, heart attack and cardiogenic shock risk.'],
+[6,'CVA: Stroke','4uy-JYFM_5Q','4:28','assess','Stroke recognition: BE FAST in the field.'],
+[7,'Diabetes (Part 1)','2d1JQt078W8','4:23','assess','Diabetes basics and hypoglycemia.'],
+[8,'Diabetes (Part 2): Hyperglycemia','pxPazm3cFq4','5:43','assess','High blood sugar emergencies.']];
+const epUrl=id=>'https://www.youtube.com/watch?v='+id;
+let epSeen=new Set(S.get('epSeen',[])),epF='all';
+function renderEps(){const tops=['all',...new Set(EPS.map(e=>e[4]))];
+  $('epFilter').innerHTML=tops.map(t=>`<button class="chip ${t===epF?'on':''}" data-f="${t}">${t==='all'?'All episodes':esc(TOPIC[t])}</button>`).join('');
+  $('eps').innerHTML=EPS.filter(e=>epF==='all'||e[4]===epF).map(e=>`<div class="card" style="display:flex;gap:14px;align-items:flex-start"><a href="${epUrl(e[2])}" target="_blank" rel="noopener" data-ep="${e[0]}" aria-label="Watch episode ${e[0]}" style="flex:none;width:64px;height:64px;border-radius:14px;background:${epSeen.has(e[0])?'var(--ok)':'var(--red)'};display:grid;place-items:center;color:#fff;font:800 26px 'Barlow Condensed';text-decoration:none">${epSeen.has(e[0])?'✓':e[0]}</a><div style="flex:1"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${tag(e[4])}<span class="mute" style="font-size:14px">Ep ${e[0]} · ${e[3]}</span></div><a href="${epUrl(e[2])}" target="_blank" rel="noopener" data-ep="${e[0]}" style="display:block;color:var(--ink);font:700 21px/1.15 'Barlow Condensed';margin:6px 0 4px;text-decoration:none">${esc(e[1])}</a><p class="mute" style="margin:0;font-size:15px">${esc(e[5])}</p><button class="chip" data-mark="${e[0]}" style="margin-top:8px;padding:6px 12px;min-height:36px">${epSeen.has(e[0])?'Watched':'Mark watched'}</button></div></div>`).join('')}
+$('epFilter').onclick=e=>{const b=e.target.closest('[data-f]');if(b){epF=b.dataset.f;renderEps()}};
+const markEp=n=>{if(!epSeen.has(n)){epSeen.add(n);S.set('epSeen',[...epSeen]);addXP(5)}else{epSeen.delete(n);S.set('epSeen',[...epSeen])}renderEps()};
+$('eps').onclick=e=>{const m=e.target.closest('[data-mark]');if(m){markEp(+m.dataset.mark);return}const a=e.target.closest('[data-ep]');if(a&&!epSeen.has(+a.dataset.ep)){epSeen.add(+a.dataset.ep);S.set('epSeen',[...epSeen]);addXP(5);setTimeout(renderEps,300)}};
+renderEps();
 
 /* ---------- videos, cheat sheet, fixes ---------- */
 const yt='<svg width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#fff"/></svg>';

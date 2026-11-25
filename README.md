@@ -14,7 +14,7 @@ An interactive study site for EMT coursework, built from my own notes plus the A
 | Quiz | Multiple choice with explanations and a review of misses |
 | Games | Assessment Builder, Mnemonic Decoder, Shock Detective, Airway Builder, Speed Round, patient sims |
 | Field tools | O₂ cylinder duration calculator, device and sizing tables, normal vitals |
-| Videos | Curated YouTube searches for skill demos |
+| Video bank | Ari Deutsch's EMT Review episodes (watch tracking, linked from slides) plus skill-demo searches |
 | Cheat sheet | One-page summary, copyable as text |
 | Hebrew terms | 181-term glossary, on-scene SAMPLE/OPQRST questions, flashcards, match game, audio |
 | Note Lab | Type or dictate notes; Claude cleans them up, fact-checks them and adds study items |
