@@ -126,6 +126,19 @@ th{font-weight:700;background:var(--soft)}td.n{text-align:right;white-space:nowr
 .notes-toc a{flex:none;color:var(--blue);font-weight:600;text-decoration:none;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card)}
 @media(min-width:900px){.notes-toc{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:2}}
 .he{font-family:Heebo,Barlow,sans-serif;unicode-bidi:isolate}
+#focus{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) max(14px,4vw) 10px}
+#focus[hidden]{display:none}
+.f-bar{display:flex;align-items:center;gap:6px;max-width:820px;width:100%;margin:0 auto;opacity:.35;transition:opacity .25s}
+.f-bar:hover,.f-bar:focus-within,#focus.idle .f-bar{opacity:1}
+.f-bar select{min-height:34px;width:auto;max-width:150px;font-size:14px;padding:4px 8px;border:1px solid var(--line);background:transparent;color:var(--mute)}
+.f-btn{min-height:34px;border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:8px;padding:4px 10px;font-size:14px}
+.f-btn:hover{color:var(--ink);border-color:var(--ink)}
+.f-go{color:var(--blue);border-color:var(--blue);font-weight:600}
+.f-go:hover{background:var(--blue);color:#fff}
+.f-meta{font-size:13px;color:var(--mute);margin:0}
+#fRaw{flex:1;width:100%;max-width:760px;margin:18px auto 0;border:0;outline:0;resize:none;background:transparent;color:var(--ink);font:19px/1.75 Barlow,sans-serif;padding:0 2px}
+#fRaw::placeholder{color:var(--mute);opacity:.6}
+#fPartial{max-width:760px;width:100%;margin:0 auto;min-height:1.4em;font-style:italic}
 footer{text-align:center;color:var(--mute);font-size:14px;padding:20px}
 @media(max-width:800px){.hero,.slide,.sim{grid-template-columns:minmax(0,1fr)}.slide{min-height:0}}
 @media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;font-weight:700}.stack td:empty{display:none}.mon-screen{grid-template-columns:minmax(0,1fr)}.vit{grid-template-columns:repeat(4,minmax(0,1fr))}.vit b{font-size:26px}}
@@ -134,6 +147,19 @@ footer{text-align:center;color:var(--mute);font-size:14px;padding:20px}
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
 </head>
 <body>
+<div id="focus" role="dialog" aria-modal="true" aria-label="Focus writing" hidden>
+  <div class="f-bar">
+    <select id="fTopic" aria-label="Topic"></select>
+    <span class="f-meta" id="fMeta">0 words</span>
+    <span style="flex:1"></span>
+    <button class="f-btn" id="fMic" style="display:none" aria-label="Dictate">🎙</button>
+    <button class="f-btn" id="fFull" aria-label="Full screen">⤢</button>
+    <button class="f-btn f-go" id="fGo" title="Ctrl/⌘ + Enter">Clean up</button>
+    <button class="f-btn" id="fClose" aria-label="Exit focus mode" title="Esc">✕</button>
+  </div>
+  <textarea id="fRaw" aria-label="Your notes" placeholder="Start typing your notes…" spellcheck="true"></textarea>
+  <p id="fPartial" class="f-meta" aria-live="polite"></p>
+</div>
 <header>
   <div class="brand">
     <div><h1>EMT Study Center</h1><small>Patient assessment, asthma, airway &amp; shock: built from your notes plus the AAOS curriculum</small></div>
@@ -258,7 +284,7 @@ footer{text-align:center;color:var(--mute);font-size:14px;padding:20px}
       <div><label for="labTopic">Topic</label><select id="labTopic"></select></div>
       <div id="labNewWrap" style="display:none"><label for="labNew">New topic name</label><input id="labNew" placeholder="e.g. Cardiac" style="width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 12px"></div>
     </div>
-    <div class="chips" style="margin-top:14px"><button class="btn red" id="labGo">Clean up, fact-check &amp; build</button><button class="chip" id="labMic" style="display:none">🎙 Dictate</button><button class="chip" id="labRawSave">Save without AI</button></div>
+    <div class="chips" style="margin-top:14px"><button class="btn" id="labFocus">⤢ Focus mode</button><button class="btn red" id="labGo">Clean up, fact-check &amp; build</button><button class="chip" id="labMic" style="display:none">🎙 Dictate</button><button class="chip" id="labRawSave">Save without AI</button></div>
     <p id="labStatus" role="status" style="font-weight:600;margin:0"></p>
   </div>
   <div id="labResult" style="margin-top:16px"></div>
@@ -698,6 +724,7 @@ function route(){
   if(!visited.has(v)){visited.add(v);S.set('visited',[...visited]);addXP(5)}
   if(v==='home')renderTiles();
   if(v==='animations')drawTri();
+  if(v==='lab'&&!pending&&!$('labResult').innerHTML)openFocus();else if(v!=='lab'&&focusOpen)closeFocus();
   window.scrollTo(0,0);
 }
 addEventListener('hashchange',route);
@@ -1125,20 +1152,35 @@ function showPending(){const p=pending,c=p.cleaned;
   $('labDiscard').onclick=()=>{pending=null;$('labResult').innerHTML='';$('labStatus').textContent='Discarded.'}}
 async function saveNote(n,replace){
   try{await STORE.save(n);if(replace){await STORE.del(replace);labNotes=labNotes.filter(x=>x.id!==replace);unmerge(replace)}}catch(e){$('labStatus').textContent=e&&e.code==='quota_exceeded'?'Storage is full. Delete an old note first.':'Could not save: '+((e&&(e.message||e.code))||'try again.');return}
-  labNotes.push(n);mergeNote(n);pending=null;$('labRaw').value='';$('labResult').innerHTML='';refreshAll();addXP(n.cleaned?15:3);
+  labNotes.push(n);mergeNote(n);pending=null;$('labRaw').value='';S.set('draft','');$('labResult').innerHTML='';refreshAll();addXP(n.cleaned?15:3);
   $('labStatus').textContent=n.cleaned?`Added "${n.cleaned.title}" to slides, flashcards, the quiz and the speed round.`:'Saved. Use "Clean up now" on it later.'}
 $('labRawSave').onclick=()=>{const raw=$('labRaw').value.trim();if(!raw){$('labStatus').textContent='Nothing to save.';return}const [tk,tl]=resolveTopic($('labTopic').value==='auto'?'new':$('labTopic').value,'');saveNote({id:'note-'+Date.now(),created:Date.now(),raw,cleaned:null,topic:$('labTopic').value==='auto'?'c-notes':tk,topicLabel:$('labTopic').value==='auto'?'My notes':tl})};
 let micOn=false;
 $('labMic').onclick=()=>{if(!DICT)return;if(micOn){DICT.stop().catch(()=>{});return}DICT.start().catch(e=>{$('labStatus').textContent=e&&e.code==='not_granted'?'Microphone access declined. You can keep typing.':'Dictation could not start.';if(e&&e.code==='not_granted')$('labMic').style.display='none'})};
+/* focus mode */
+let focusOpen=false,fT;
+function fCount(){const w=$('fRaw').value.trim().split(/\s+/).filter(Boolean).length;$('fMeta').textContent=w+' word'+(w===1?'':'s')}
+function openFocus(){if(focusOpen)return;focusOpen=true;$('fTopic').innerHTML=$('labTopic').innerHTML;$('fTopic').value=$('labTopic').value==='new'?'auto':$('labTopic').value;
+  $('fRaw').value=$('labRaw').value||S.get('draft','');fCount();$('focus').hidden=false;document.body.style.overflow='hidden';setTimeout(()=>{const t=$('fRaw');t.focus();t.setSelectionRange(t.value.length,t.value.length)},30)}
+function closeFocus(){if(!focusOpen)return;focusOpen=false;$('labRaw').value=$('fRaw').value;$('labTopic').value=$('fTopic').value;$('labTopic').onchange();$('focus').hidden=true;document.body.style.overflow='';try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}}
+$('labFocus').onclick=openFocus;
+$('fClose').onclick=closeFocus;
+$('fRaw').addEventListener('input',()=>{fCount();clearTimeout(fT);fT=setTimeout(()=>S.set('draft',$('fRaw').value),400)});
+$('labRaw').addEventListener('input',()=>{clearTimeout(fT);fT=setTimeout(()=>S.set('draft',$('labRaw').value),400)});
+$('fGo').onclick=()=>{if($('fRaw').value.trim().length<10){$('fMeta').textContent='Write a bit more first';return}closeFocus();$('labGo').click()};
+$('fMic').onclick=()=>$('labMic').click();
+$('fFull').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():$('focus').requestFullscreen().catch(()=>{})}catch(e){}};
+document.addEventListener('keydown',e=>{if(!focusOpen)return;if(e.key==='Escape'&&!document.fullscreenElement){e.preventDefault();closeFocus()}if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();$('fGo').click()}});
+let idleT;$('focus').addEventListener('mousemove',()=>{$('focus').classList.add('idle');clearTimeout(idleT);idleT=setTimeout(()=>$('focus').classList.remove('idle'),1500)});
 renderTopicSelect();renderLabList();
 (async()=>{
   if(!window.claude||!window.claude.use)return;
   const [smp,db,user,dict]=await Promise.all(['sample','db','user','dictation'].map(n=>window.claude.use(n).catch(()=>null)));
   SMP=smp;
   if(dict){DICT=dict;$('labMic').style.display='';
-    dict.onPartial(({text})=>{$('labPartial').textContent=text});
-    dict.onFinal(({text})=>{const t=$('labRaw');t.value=(t.value&&!/\s$/.test(t.value)?t.value+' ':t.value)+text;$('labPartial').textContent=''});
-    dict.onState(({state})=>{micOn=state==='listening';$('labMic').textContent=micOn?'■ Stop dictating':'🎙 Dictate';$('labMic').classList.toggle('on',micOn)})}
+    dict.onPartial(({text})=>{$(focusOpen?'fPartial':'labPartial').textContent=text});
+    dict.onFinal(({text})=>{const t=$(focusOpen?'fRaw':'labRaw');t.value=(t.value&&!/\s$/.test(t.value)?t.value+' ':t.value)+text;$('labPartial').textContent='';$('fPartial').textContent='';if(focusOpen)fCount()});
+    $('fMic').style.display='';dict.onState(({state})=>{micOn=state==='listening';$('fMic').textContent=micOn?'■':'🎙';$('fMic').style.color=micOn?'var(--red)':'';$('labMic').textContent=micOn?'■ Stop dictating':'🎙 Dictate';$('labMic').classList.toggle('on',micOn)})}
   let uid=null;try{uid=user?await user.id():null}catch(e){}
   if(db&&uid){const col=db.collection('data/users/'+uid);
     STORE={async list(){const s=await col.get();return s.docs.filter(d=>d.exists&&d.id.startsWith('note-')).map(d=>d.data())},async save(n){await col.doc(n.id).set(JSON.parse(JSON.stringify(n)))},async del(id){await col.doc(id).delete()},name:'Saved to your account, private to you. Syncs across your devices.'};
