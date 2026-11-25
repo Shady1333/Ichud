@@ -126,23 +126,18 @@ th{font-weight:700;background:var(--soft)}td.n{text-align:right;white-space:nowr
 .notes-toc a{flex:none;color:var(--blue);font-weight:600;text-decoration:none;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card)}
 @media(min-width:900px){.notes-toc{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:2}}
 .he{font-family:Heebo,Barlow,sans-serif;unicode-bidi:isolate}
-#focus{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) max(14px,4vw) 10px}
+#focus{position:fixed;inset:0;z-index:100;background:#fff;color:#202124;color-scheme:light;display:flex;flex-direction:column}
 #focus[hidden]{display:none}
-.f-bar{display:flex;align-items:center;gap:6px;max-width:820px;width:100%;margin:0 auto}
-.f-bar select{min-height:36px;width:auto;max-width:160px;font-size:15px;padding:4px 8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
-.f-btn{min-height:36px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 12px;font-size:15px;font-weight:600}
-.f-btn:hover{border-color:var(--blue)}
-.f-go{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700;letter-spacing:.04em}
-.f-go:hover{background:var(--blueD);color:#fff}
-.f-meta{font-size:14px;color:var(--mute);margin:0 4px}
-#fRaw{flex:1;width:100%;max-width:760px;margin:16px auto 0;border:1px solid var(--line);border-radius:16px;outline:0;resize:none;background:var(--card);color:var(--ink);font:500 19px/1.75 Barlow,sans-serif;padding:22px 26px;box-shadow:0 10px 30px -18px rgba(0,0,0,.35)}
-#fRaw:focus{border-color:var(--blue)}
-#fRaw::placeholder{color:var(--mute);opacity:1}
-#fPartial{max-width:760px;width:100%;margin:0 auto;min-height:1.4em;font-style:italic}
-#tour{position:fixed;inset:0;z-index:300}#tour[hidden]{display:none}
-#tour.dim{background:rgba(5,10,20,.55)}
-#tourSpot{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(5,10,20,.55);outline:3px solid var(--red);transition:all .3s;pointer-events:none}
-.tour-card{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(520px,calc(100vw - 24px));background:var(--card);color:var(--ink);border-radius:18px;padding:18px 20px;box-shadow:0 20px 50px -10px rgba(0,0,0,.5);border:1px solid var(--line)}
+.f-bar{display:flex;align-items:center;gap:6px;width:100%;padding:max(8px,env(safe-area-inset-top)) max(12px,3vw) 8px;border-bottom:1px solid #e3e3e3;background:#fff}
+.f-bar select{min-height:36px;width:auto;max-width:170px;font:14px Arial,sans-serif;padding:4px 8px;border:0;border-radius:6px;background:#f1f3f4;color:#202124}
+.f-btn{min-height:36px;border:0;background:transparent;color:#444746;border-radius:18px;padding:4px 12px;font:600 14px Arial,sans-serif}
+.f-btn:hover{background:#f1f3f4}
+.f-go{background:#1a73e8;color:#fff;padding:4px 18px;letter-spacing:.04em}
+.f-go:hover{background:#1765cc}
+.f-meta{font:13px Arial,sans-serif;color:#5f6368;margin:0 6px}
+#fRaw{flex:1;width:100%;max-width:816px;margin:0 auto;border:0;outline:0;resize:none;background:#fff;color:#202124;font:16px/1.6 Arial,Helvetica,sans-serif;padding:40px max(20px,5vw) 40px}
+#fRaw::placeholder{color:#80868b}
+#fPartial{max-width:816px;width:100%;margin:0 auto;padding:0 max(20px,5vw) 10px;min-height:1.4em;font-style:italic;color:#5f6368}
 footer{text-align:center;color:var(--mute);font-size:14px;padding:20px}
 @media(max-width:800px){.hero,.slide,.sim{grid-template-columns:minmax(0,1fr)}.slide{min-height:0}}
 @media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;font-weight:700}.stack td:empty{display:none}.mon-screen{grid-template-columns:minmax(0,1fr)}.vit{grid-template-columns:repeat(4,minmax(0,1fr))}.vit b{font-size:26px}}
